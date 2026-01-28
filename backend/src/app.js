@@ -12,4 +12,5 @@ app.use("/api/protected", require("./routes/protected.routes"));
 app.use("/api/institutes", require("./routes/institute.routes"));
 app.use("/api/students", require("./routes/student.routes"));
 app.use("/api/teachers", require("./routes/teacher.routes"));
+app.use("/api/attendance", require("./routes/attendance.routes"));
 module.exports = app;

@@ -17,5 +17,6 @@ app.use("/api/timetable", require("./routes/timetable.routes"));
 app.use("/api/exams", require("./routes/exam.routes"));
 app.use("/api/marks", require("./routes/marks.routes"));
 app.use("/api/classes", require("./routes/class.routes"));
+app.use("/api/fees", require("./routes/fees.routes"));
 
 module.exports = app;

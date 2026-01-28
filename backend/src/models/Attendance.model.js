@@ -8,13 +8,27 @@ const attendanceSchema = new mongoose.Schema(
       required: true,
     },
 
-    className: {
-      type: String,
+    classId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Class",
       required: true,
     },
 
-    section: {
+    studentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
+    teacherId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
+    subject: {
       type: String,
+      required: true,
     },
 
     date: {
@@ -22,33 +36,27 @@ const attendanceSchema = new mongoose.Schema(
       required: true,
     },
 
-    markedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+    periodNumber: {
+      type: Number,
       required: true,
     },
 
-    records: [
-      {
-        studentId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Student",
-          required: true,
-        },
-        status: {
-          type: String,
-          enum: ["PRESENT", "ABSENT"],
-          required: true,
-        },
-      },
-    ],
+    status: {
+      type: String,
+      enum: ["PRESENT", "ABSENT"],
+      required: true,
+    },
   },
   { timestamps: true }
 );
 
-// ❗ Prevent duplicate attendance
+// 🔒 Duplicate prevention (CORE LOGIC)
 attendanceSchema.index(
-  { instituteId: 1, className: 1, section: 1, date: 1 },
+  {
+    studentId: 1,
+    date: 1,
+    periodNumber: 1,
+  },
   { unique: true }
 );
 

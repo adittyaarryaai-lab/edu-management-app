@@ -20,5 +20,6 @@ app.use("/api/classes", require("./routes/class.routes"));
 app.use("/api/fees", require("./routes/fees.routes"));
 app.use("/api/parents", require("./routes/parent.routes"));
 app.use("/api/notifications", require("./routes/notification.routes"));
+app.use("/api/reports", require("./routes/reports.routes"));
 
 module.exports = app;

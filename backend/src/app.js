@@ -18,5 +18,7 @@ app.use("/api/exams", require("./routes/exam.routes"));
 app.use("/api/marks", require("./routes/marks.routes"));
 app.use("/api/classes", require("./routes/class.routes"));
 app.use("/api/fees", require("./routes/fees.routes"));
+app.use("/api/parents", require("./routes/parent.routes"));
+app.use("/api/notifications", require("./routes/notification.routes"));
 
 module.exports = app;

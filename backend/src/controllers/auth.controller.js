@@ -23,7 +23,9 @@ exports.register = async (req, res) => {
       email,
       password: hashedPassword,
       role,
+      instituteId: role === "SUPER_ADMIN" ? null : instituteId,
     });
+
 
     res.status(201).json({
       success: true,

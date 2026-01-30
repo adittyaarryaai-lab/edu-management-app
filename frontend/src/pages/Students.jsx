@@ -10,7 +10,9 @@ const Students = () => {
   const loadStudents = async () => {
     try {
       const res = await getStudents();
-      setStudents(res.data.students);
+
+      // ✅ BACKEND RETURNS ARRAY DIRECTLY
+      setStudents(res.data);
     } catch (err) {
       console.error(err);
       alert("Failed to load students");
@@ -25,11 +27,16 @@ const Students = () => {
     <MainLayout>
       <h2>Students</h2>
 
+      {/* CREATE */}
       <AddStudentForm onCreated={loadStudents} />
 
       <hr />
 
-      <StudentTable students={students} />
+      {/* LIST + EDIT + DELETE */}
+      <StudentTable
+        students={students}
+        onRefresh={loadStudents}
+      />
     </MainLayout>
   );
 };

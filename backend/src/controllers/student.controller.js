@@ -61,16 +61,58 @@ exports.getStudents = async (req, res) => {
     const students = await Student.find({ instituteId })
       .sort({ createdAt: -1 });
 
-    res.json({
-      success: true,
-      count: students.length,
-      students,
+    // 🔥 IMPORTANT — disable cache
+    res.set("Cache-Control", "no-store");
+
+    res.json(students);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Fetch students failed" });
+  }
+};
+
+/* ---------------- UPDATE STUDENT ---------------- */
+
+exports.updateStudent = async (req, res) => {
+  try {
+    const instituteId = req.user.instituteId;
+
+    const student = await Student.findOneAndUpdate(
+      { _id: req.params.id, instituteId },
+      req.body,
+      { new: true }
+    );
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    res.json(student);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Update failed" });
+  }
+};
+/* ---------------- DELETE STUDENT ---------------- */
+
+exports.deleteStudent = async (req, res) => {
+  try {
+    const instituteId = req.user.instituteId;
+
+    const student = await Student.findOneAndDelete({
+      _id: req.params.id,
+      instituteId
     });
 
-  } catch (error) {
-    console.error("Fetch Students Error:", error);
-    res.status(500).json({
-      message: "Failed to fetch students",
-    });
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    res.json({ message: "Student deleted" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Delete failed" });
   }
 };

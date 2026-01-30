@@ -25,4 +25,24 @@ router.get(
   studentController.getStudents
 );
 
+/* ---------------- UPDATE STUDENT ---------------- */
+/* Only SUPER_ADMIN & INSTITUTE_ADMIN */
+
+router.put(
+  "/:id",
+  authMiddleware,
+  roleMiddleware(["SUPER_ADMIN", "INSTITUTE_ADMIN"]),
+  studentController.updateStudent
+);
+
+/* ---------------- DELETE STUDENT ---------------- */
+/* Only SUPER_ADMIN & INSTITUTE_ADMIN */
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  roleMiddleware(["SUPER_ADMIN", "INSTITUTE_ADMIN"]),
+  studentController.deleteStudent
+);
+
 module.exports = router;

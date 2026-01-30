@@ -6,40 +6,44 @@ const studentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Institute",
       required: true,
+      index: true
     },
 
-    name: {
+    firstName: {
       type: String,
       required: true,
-      trim: true,
+      trim: true
+    },
+
+    lastName: {
+      type: String,
+      trim: true
     },
 
     email: {
       type: String,
-      lowercase: true,
+      lowercase: true
     },
 
-    phone: {
-      type: String,
-    },
-
-    rollNumber: {
-      type: String,
-    },
+    phone: String,
 
     className: {
       type: String,
-      required: true,
+      required: true
     },
 
-    section: {
+    section: String,
+
+    rollNumber: String,
+
+    parentName: String,
+    parentPhone: String,
+
+    status: {
       type: String,
-    },
-
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
+      enum: ["active", "inactive"],
+      default: "active"
+    }
   },
   { timestamps: true }
 );

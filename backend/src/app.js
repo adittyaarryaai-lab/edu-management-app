@@ -3,9 +3,21 @@ const cors = require("cors");
 
 const app = express();
 
-app.use(cors());
+/* ✅ CORS — MUST be explicit */
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
+/* ✅ GLOBAL MIDDLEWARE FIRST */
+const { attachAcademicYear } = require("./middlewares/academicYear");
+app.use(attachAcademicYear);
+
+/* ✅ ROUTES AFTER ALL MIDDLEWARES */
 app.use("/api/health", require("./routes/health.routes"));
 app.use("/api/auth", require("./routes/auth.routes"));
 app.use("/api/protected", require("./routes/protected.routes"));
@@ -22,8 +34,5 @@ app.use("/api/parents", require("./routes/parent.routes"));
 app.use("/api/notifications", require("./routes/notification.routes"));
 app.use("/api/reports", require("./routes/reports.routes"));
 app.use("/api/settings", require("./routes/settings.routes"));
-
-const { attachAcademicYear } = require("./middlewares/academicYear");
-app.use(attachAcademicYear);
 
 module.exports = app;

@@ -1,25 +1,23 @@
-import { useEffect, useState } from "react";
-import api from "./api/axios";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import ProtectedRoute from "./utils/ProtectedRoute";
 
-function App() {
-  const [status, setStatus] = useState("");
-
-  useEffect(() => {
-    api.get("/health")
-      .then((res) => {
-        setStatus(res.data.message);
-      })
-      .catch(() => {
-        setStatus("Backend not connected");
-      });
-  }, []);
-
+export default function App() {
   return (
-    <div style={{ padding: "40px", fontFamily: "Arial" }}>
-      <h1>EduFlowAI</h1>
-      <p>{status}</p>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }
-
-export default App;

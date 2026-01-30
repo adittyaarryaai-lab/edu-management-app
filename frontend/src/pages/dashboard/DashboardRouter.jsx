@@ -1,6 +1,8 @@
 import { useAuth } from "../../context/AuthContext";
 import { ROLES } from "../../constants/roles";
 
+import MainLayout from "../../layouts/MainLayout";
+
 import AdminDashboard from "./AdminDashboard";
 import TeacherDashboard from "./TeacherDashboard";
 import StudentDashboard from "./StudentDashboard";
@@ -15,19 +17,39 @@ const DashboardRouter = () => {
   switch (user.role) {
     case ROLES.SUPER_ADMIN:
     case ROLES.INSTITUTE_ADMIN:
-      return <AdminDashboard />;
+      return (
+        <MainLayout>
+          <AdminDashboard />
+        </MainLayout>
+      );
 
     case ROLES.TEACHER:
-      return <TeacherDashboard />;
+      return (
+        <MainLayout>
+          <TeacherDashboard />
+        </MainLayout>
+      );
 
     case ROLES.STUDENT:
-      return <StudentDashboard />;
+      return (
+        <MainLayout>
+          <StudentDashboard />
+        </MainLayout>
+      );
 
     case ROLES.PARENT:
-      return <ParentDashboard />;
+      return (
+        <MainLayout>
+          <ParentDashboard />
+        </MainLayout>
+      );
 
     case ROLES.ACCOUNTANT:
-      return <AccountantDashboard />;
+      return (
+        <MainLayout>
+          <AccountantDashboard />
+        </MainLayout>
+      );
 
     default:
       return <h2>Unauthorized</h2>;

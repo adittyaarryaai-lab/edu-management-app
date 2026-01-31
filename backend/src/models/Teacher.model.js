@@ -6,41 +6,35 @@ const teacherSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Institute",
       required: true,
+      index: true
     },
 
-    name: {
+    firstName: {
       type: String,
       required: true,
-      trim: true,
+      trim: true
     },
+
+    lastName: String,
 
     email: {
       type: String,
-      lowercase: true,
+      lowercase: true
     },
 
-    phone: {
+    phone: String,
+
+    subject: String,
+
+    qualification: String,
+
+    experienceYears: Number,
+
+    status: {
       type: String,
-    },
-
-    subjects: {
-      type: [String],
-      default: [],
-    },
-
-    qualification: {
-      type: String,
-    },
-
-    experienceYears: {
-      type: Number,
-      default: 0,
-    },
-
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
+      enum: ["active", "inactive"],
+      default: "active"
+    }
   },
   { timestamps: true }
 );

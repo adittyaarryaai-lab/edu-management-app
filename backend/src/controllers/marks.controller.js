@@ -1,37 +1,63 @@
 const Marks = require("../models/Marks.model");
 
-// Enter Marks (Teacher)
-exports.enterMarks = async (req, res) => {
+/* ================================
+   ADD / UPDATE MARKS (Teacher)
+   ================================ */
+exports.saveMarks = async (req, res) => {
   try {
-    const marks = await Marks.create({
-      ...req.body,
-      instituteId: req.user.instituteId,
-      enteredBy: req.user.userId,
-    });
+    const { studentId, examId, subjectMarks } = req.body;
 
-    res.status(201).json({
+    const marks = await Marks.findOneAndUpdate(
+      {
+        instituteId: req.user.instituteId,
+        studentId,
+        examId,
+      },
+      {
+        subjectMarks,
+        enteredBy: req.user.userId, // teacher id
+      },
+      {
+        upsert: true,   // same exam me dobara aaye to update
+        new: true,
+      }
+    );
+
+    res.status(200).json({
       success: true,
-      marks,
+      message: "Marks saved successfully",
+      data: marks,
     });
   } catch (error) {
-    res.status(400).json({
-      message: "Marks already entered or invalid data",
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to save marks",
     });
   }
 };
 
-// Get Student Report
+/* ================================
+   GET STUDENT REPORT CARD
+   ================================ */
 exports.getStudentReport = async (req, res) => {
-  const { studentId, examId } = req.params;
+  try {
+    const { studentId } = req.query;
 
-  const data = await Marks.find({
-    studentId,
-    examId,
-    instituteId: req.user.instituteId,
-  });
+    const report = await Marks.find({
+      instituteId: req.user.instituteId,
+      studentId,
+    }).populate("examId");
 
-  res.json({
-    success: true,
-    report: data,
-  });
+    res.status(200).json({
+      success: true,
+      report,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch report card",
+    });
+  }
 };

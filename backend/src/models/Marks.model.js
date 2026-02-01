@@ -6,34 +6,40 @@ const marksSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Institute",
       required: true,
-    },
-
-    examId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Exam",
-      required: true,
+      index: true,
     },
 
     studentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Student",
       required: true,
+      index: true,
     },
 
-    subject: {
-      type: String,
+    examId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Exam",
       required: true,
+      index: true,
     },
 
-    marksObtained: {
-      type: Number,
-      required: true,
-    },
-
-    maxMarks: {
-      type: Number,
-      required: true,
-    },
+    // 👇 subject-wise marks in one document
+    subjectMarks: [
+      {
+        subject: {
+          type: String,
+          required: true,
+        },
+        marksObtained: {
+          type: Number,
+          required: true,
+        },
+        maxMarks: {
+          type: Number,
+          required: true,
+        },
+      },
+    ],
 
     enteredBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -43,9 +49,12 @@ const marksSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// ❗ Prevent duplicate marks per subject
+/**
+ * ❗ One student can have only ONE marks record per exam
+ * Subjects are handled inside subjectMarks array
+ */
 marksSchema.index(
-  { examId: 1, studentId: 1, subject: 1 },
+  { instituteId: 1, studentId: 1, examId: 1 },
   { unique: true }
 );
 

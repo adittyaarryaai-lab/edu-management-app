@@ -6,6 +6,7 @@ const examSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Institute",
       required: true,
+      index: true,
     },
 
     name: {
@@ -27,6 +28,20 @@ const examSchema = new mongoose.Schema(
       required: true, // 2025-26
     },
 
+    /* 🔥 NEW — Exam subjects (VERY IMPORTANT FOR MARKS) */
+    subjects: [
+      {
+        name: {
+          type: String,
+          required: true, // Math, Science
+        },
+        maxMarks: {
+          type: Number,
+          required: true, // 100
+        },
+      },
+    ],
+
     startDate: Date,
     endDate: Date,
 
@@ -37,5 +52,14 @@ const examSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+/* 🔐 One exam per class + section + year */
+examSchema.index({
+  instituteId: 1,
+  className: 1,
+  section: 1,
+  name: 1,
+  academicYear: 1,
+});
 
 module.exports = mongoose.model("Exam", examSchema);

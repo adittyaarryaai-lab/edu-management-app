@@ -1,19 +1,29 @@
 const Timetable = require("../models/Timetable.model");
 
+/* ================= CREATE TIMETABLE ================= */
+
 exports.createTimetable = async (req, res) => {
     try {
-        const { className, section, day, period, subject, teacherId } = req.body;
+        const {
+            classId,
+            day,
+            periodNumber,
+            subject,
+            teacherId
+        } = req.body;
 
-        if (!className || !day || !period || !subject || !teacherId) {
-            return res.status(400).json({ message: "Required fields missing" });
+        // ✅ Validation
+        if (!classId || !day || !periodNumber || !subject || !teacherId) {
+            return res.status(400).json({
+                message: "Required fields missing",
+            });
         }
 
         const entry = await Timetable.create({
             instituteId: req.user.instituteId,
-            className,
-            section,
+            classId,
             day,
-            period,
+            periodNumber,
             subject,
             teacherId,
         });
@@ -23,6 +33,7 @@ exports.createTimetable = async (req, res) => {
             message: "Timetable entry created",
             entry,
         });
+
     } catch (error) {
         if (error.code === 11000) {
             return res.status(400).json({
@@ -30,29 +41,39 @@ exports.createTimetable = async (req, res) => {
             });
         }
 
-        res.status(500).json({ message: "Timetable creation failed" });
+        console.error(error);
+        res.status(500).json({
+            message: "Timetable creation failed",
+        });
     }
 };
+
+/* ================= GET TIMETABLE ================= */
+
 exports.getTimetable = async (req, res) => {
     try {
-        const { className, section, day } = req.query;
+        const { classId, day } = req.query;
 
         const query = {
             instituteId: req.user.instituteId,
         };
 
-        if (className) query.className = className;
-        if (section) query.section = section;
+        if (classId) query.classId = classId;
         if (day) query.day = day;
 
         const timetable = await Timetable.find(query)
-            .populate("teacherId", "name subjects");
+            .populate("teacherId", "name email");
 
         res.json({
             success: true,
             timetable,
         });
+
     } catch (error) {
-        res.status(500).json({ message: "Failed to fetch timetable" });
+        console.error(error);
+        res.status(500).json({
+            message: "Failed to fetch timetable",
+        });
     }
 };
+

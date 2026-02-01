@@ -6,63 +6,100 @@ const roleMiddleware = require("../middlewares/role.middleware");
 
 const router = express.Router();
 
-// 🟢 MARK ATTENDANCE (Teacher only, Timetable locked)
+/*
+|--------------------------------------------------------------------------
+| 🟢 MARK ATTENDANCE (Teacher only, Timetable locked, UPSERT SAFE)
+|--------------------------------------------------------------------------
+*/
 router.post(
-  "/",
+  "/mark",
   authMiddleware,
   roleMiddleware(["TEACHER"]),
   async (req, res) => {
-    const { className, subject, periodNumber, date, records } = req.body;
+    const { classId, subject, periodNumber, date, records } = req.body;
 
     try {
-      // ✅ Verify teacher assignment from timetable
+      /* ✅ Verify teacher assignment from timetable */
       const timetable = await Timetable.findOne({
         instituteId: req.user.instituteId,
-        className,
+        classId,
         subject,
-        teacherId: req.user._id,
+        teacherId: req.user.userId,
         period: periodNumber,
       });
 
       if (!timetable) {
         return res.status(403).json({
-          message: "You are not assigned to this class/period",
+          message: "You are not assigned to this class / period",
         });
       }
 
-      const attendanceEntries = records.map((r) => ({
-        instituteId: req.user.instituteId,
-        className,
-        studentId: r.studentId,
-        teacherId: req.user._id,
-        subject,
-        date,
-        periodNumber,
-        status: r.status,
+      /*
+      |--------------------------------------------------------------------------
+      | ✅ BULK UPSERT LOGIC (No duplicate crash)
+      |--------------------------------------------------------------------------
+      | One student + date + period = one record
+      | Same day re-mark = overwrite
+      */
+      const operations = records.map((r) => ({
+        updateOne: {
+          filter: {
+            instituteId: req.user.instituteId,
+            studentId: r.studentId,
+            date,
+            periodNumber,
+          },
+          update: {
+            $set: {
+              instituteId: req.user.instituteId,
+              classId,
+              subject,
+              periodNumber,
+              date,
+              studentId: r.studentId,
+              teacherId: req.user.userId,
+              status: r.status,
+            },
+          },
+          upsert: true,
+        },
       }));
 
-      await Attendance.insertMany(attendanceEntries);
+      await Attendance.bulkWrite(operations);
 
-      res.status(201).json({ message: "Attendance marked successfully" });
+      res.status(200).json({
+        message: "Attendance saved successfully",
+      });
     } catch (error) {
-      res.status(400).json({
-        message: "Attendance already marked or invalid data",
+      console.error(error);
+      res.status(500).json({
+        message: "Failed to mark attendance",
       });
     }
   }
 );
 
-// 🔵 STUDENT / PARENT VIEW
+/*
+|--------------------------------------------------------------------------
+| 🔵 STUDENT / PARENT VIEW (Read only)
+|--------------------------------------------------------------------------
+*/
 router.get(
   "/student/:studentId",
   authMiddleware,
   async (req, res) => {
-    const attendance = await Attendance.find({
-      studentId: req.params.studentId,
-      instituteId: req.user.instituteId,
-    });
+    try {
+      const attendance = await Attendance.find({
+        studentId: req.params.studentId,
+        instituteId: req.user.instituteId,
+      }).sort({ date: -1 });
 
-    res.json(attendance);
+      res.json(attendance);
+    } catch (err) {
+      res.status(500).json({
+        message: "Failed to fetch attendance",
+      });
+    }
   }
 );
 

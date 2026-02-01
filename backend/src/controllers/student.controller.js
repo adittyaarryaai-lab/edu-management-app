@@ -11,6 +11,7 @@ exports.createStudent = async (req, res) => {
       lastName,
       email,
       phone,
+      classId,
       className,
       section,
       rollNumber,
@@ -19,9 +20,9 @@ exports.createStudent = async (req, res) => {
     } = req.body;
 
     // Basic validation
-    if (!firstName || !className) {
+    if (!firstName || !classId || !className) {
       return res.status(400).json({
-        message: "First name and class are required",
+        message: "First name,classId and className are required",
       });
     }
 
@@ -31,6 +32,7 @@ exports.createStudent = async (req, res) => {
       lastName,
       email,
       phone,
+      classId,
       className,
       section,
       rollNumber,

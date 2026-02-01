@@ -8,7 +8,12 @@ const studentSchema = new mongoose.Schema(
       required: true,
       index: true
     },
-
+    classId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Class",
+      required: true,
+      index: true,
+    },
     firstName: {
       type: String,
       required: true,
@@ -29,7 +34,8 @@ const studentSchema = new mongoose.Schema(
 
     className: {
       type: String,
-      required: true
+      required: true,
+      trim: true,
     },
 
     section: String,

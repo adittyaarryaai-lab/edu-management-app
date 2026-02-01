@@ -8,13 +8,10 @@ const timetableSchema = new mongoose.Schema(
       required: true,
     },
 
-    className: {
-      type: String,
+    classId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Class",
       required: true,
-    },
-
-    section: {
-      type: String,
     },
 
     day: {
@@ -30,7 +27,7 @@ const timetableSchema = new mongoose.Schema(
       required: true,
     },
 
-    period: {
+    periodNumber: {
       type: Number,
       required: true,
     },
@@ -51,7 +48,7 @@ const timetableSchema = new mongoose.Schema(
 
 // ❗ Prevent duplicate timetable slots
 timetableSchema.index(
-  { instituteId: 1, className: 1, section: 1, day: 1, period: 1 },
+  { instituteId: 1, classId: 1, day: 1, periodNumber: 1 },
   { unique: true }
 );
 

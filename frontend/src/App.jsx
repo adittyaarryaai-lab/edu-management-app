@@ -9,6 +9,7 @@ import Teachers from "./pages/Teachers";
 import Attendance from "./pages/Attendance";
 import Reports from "./pages/Reports";
 import Fees from "./pages/Fees";
+import Timetable from "./pages/Timetable";
 
 export default function App() {
   return (
@@ -52,6 +53,15 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Attendance />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/timetable"
+            element={
+              <ProtectedRoute>
+                <Timetable />
               </ProtectedRoute>
             }
           />

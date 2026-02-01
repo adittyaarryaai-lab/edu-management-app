@@ -1,79 +1,71 @@
 const Timetable = require("../models/Timetable.model");
 
-/* ================= CREATE TIMETABLE ================= */
+/* ================= SAVE / UPDATE TIMETABLE ================= */
 
-exports.createTimetable = async (req, res) => {
-    try {
-        const {
-            classId,
-            day,
-            periodNumber,
-            subject,
-            teacherId
-        } = req.body;
+exports.saveTimetable = async (req, res) => {
+  try {
+    const instituteId = req.user.instituteId;
 
-        // ✅ Validation
-        if (!classId || !day || !periodNumber || !subject || !teacherId) {
-            return res.status(400).json({
-                message: "Required fields missing",
-            });
-        }
+    const { classId, day, periods } = req.body;
 
-        const entry = await Timetable.create({
-            instituteId: req.user.instituteId,
-            classId,
-            day,
-            periodNumber,
-            subject,
-            teacherId,
-        });
-
-        res.status(201).json({
-            success: true,
-            message: "Timetable entry created",
-            entry,
-        });
-
-    } catch (error) {
-        if (error.code === 11000) {
-            return res.status(400).json({
-                message: "Timetable slot already exists",
-            });
-        }
-
-        console.error(error);
-        res.status(500).json({
-            message: "Timetable creation failed",
-        });
+    if (!classId || !day) {
+      return res.status(400).json({ message: "classId and day required" });
     }
+
+    const timetable = await Timetable.findOneAndUpdate(
+      {
+        instituteId,
+        classId,
+        day
+      },
+      {
+        instituteId,
+        classId,
+        day,
+        periods
+      },
+      {
+        upsert: true,
+        new: true,
+        runValidators: true
+      }
+    );
+
+    res.json(timetable);
+
+  } catch (err) {
+    console.error("Timetable Save Error:", err);
+    res.status(500).json({ message: "Timetable save failed" });
+  }
 };
 
-/* ================= GET TIMETABLE ================= */
+
+/* ================= GET TIMETABLE BY CLASS ================= */
 
 exports.getTimetable = async (req, res) => {
-    try {
-        const { classId, day } = req.query;
+  try {
+    const { className } = req.query;
 
-        const query = {
-            instituteId: req.user.instituteId,
-        };
-
-        if (classId) query.classId = classId;
-        if (day) query.day = day;
-
-        const timetable = await Timetable.find(query)
-            .populate("teacherId", "name email");
-
-        res.json({
-            success: true,
-            timetable,
-        });
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            message: "Failed to fetch timetable",
-        });
+    if (!className) {
+      return res.status(400).json({
+        message: "className is required",
+      });
     }
-};
 
+    const timetable = await Timetable.find({
+      instituteId: req.user.instituteId,
+      className,
+    }).sort({ day: 1 });
+
+    res.json({
+      success: true,
+      timetable,
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Failed to fetch timetable",
+    });
+  }
+};

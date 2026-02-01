@@ -25,6 +25,7 @@ const Sidebar = () => {
           <>
             <Link to="/students" style={linkStyle}>Students</Link>
             <Link to="/teachers" style={linkStyle}>Teachers</Link>
+            <Link to="/timetable" style={linkStyle}>Timetable</Link>
             <Link to="/reports" style={linkStyle}>Reports</Link>
           </>
         )}

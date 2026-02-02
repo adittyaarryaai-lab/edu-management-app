@@ -1,88 +1,66 @@
 const express = require("express");
-const FeeStructure = require("../models/FeeStructure");
-const FeeInvoice = require("../models/FeeInvoice");
+const router = express.Router();
+
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
 
-const router = express.Router();
+const {
+  createFeeStructure,
+  assignFeeToStudent,
+  addFeePayment,
+  getStudentFeeLedger,
+} = require("../controllers/fee.controller");
 
-// 🟢 CREATE FEE STRUCTURE (ADMIN)
+/*
+|--------------------------------------------------------------------------
+| FEE STRUCTURE (ADMIN)
+|--------------------------------------------------------------------------
+| Create class-wise fee structure
+*/
 router.post(
   "/structure",
   authMiddleware,
   roleMiddleware(["SUPER_ADMIN", "INSTITUTE_ADMIN"]),
-  async (req, res) => {
-    try {
-      const structure = await FeeStructure.create({
-        ...req.body,
-        instituteId: req.user.instituteId,
-        createdBy: req.user._id,
-      });
-
-      res.status(201).json(structure);
-    } catch (error) {
-      res.status(400).json({ message: error.message });
-    }
-  }
+  createFeeStructure
 );
 
-// 🟢 GENERATE INVOICE (ADMIN / ACCOUNTANT)
+/*
+|--------------------------------------------------------------------------
+| ASSIGN FEE TO STUDENT (ADMIN)
+|--------------------------------------------------------------------------
+| Creates student fee ledger
+*/
 router.post(
-  "/invoice",
+  "/assign",
   authMiddleware,
   roleMiddleware(["SUPER_ADMIN", "INSTITUTE_ADMIN"]),
-  async (req, res) => {
-    try {
-      const invoice = await FeeInvoice.create({
-        ...req.body,
-        instituteId: req.user.instituteId,
-      });
-
-      res.status(201).json(invoice);
-    } catch (error) {
-      res.status(400).json({ message: "Invoice already exists" });
-    }
-  }
+  assignFeeToStudent
 );
 
-// 🟢 RECORD PAYMENT (ACCOUNTANT)
+/*
+|--------------------------------------------------------------------------
+| ADD PAYMENT (ACCOUNTANT)
+|--------------------------------------------------------------------------
+| Append-only transaction
+*/
 router.post(
-  "/invoice/:id/pay",
+  "/pay",
   authMiddleware,
   roleMiddleware(["ACCOUNTANT"]),
-  async (req, res) => {
-    const invoice = await FeeInvoice.findById(req.params.id);
-
-    if (!invoice) {
-      return res.status(404).json({ message: "Invoice not found" });
-    }
-
-    invoice.payments.push(req.body);
-    invoice.paidAmount += req.body.amount;
-
-    if (invoice.paidAmount >= invoice.totalAmount) {
-      invoice.status = "PAID";
-    } else {
-      invoice.status = "PARTIAL";
-    }
-
-    await invoice.save();
-    res.json(invoice);
-  }
+  addFeePayment
 );
 
-// 🔵 STUDENT / PARENT VIEW
+/*
+|--------------------------------------------------------------------------
+| STUDENT / PARENT VIEW
+|--------------------------------------------------------------------------
+| View fee ledger + transactions
+*/
 router.get(
-  "/invoice/student/:studentId",
+  "/student/:studentId",
   authMiddleware,
-  async (req, res) => {
-    const invoices = await FeeInvoice.find({
-      studentId: req.params.studentId,
-      instituteId: req.user.instituteId,
-    });
-
-    res.json(invoices);
-  }
+  roleMiddleware(["STUDENT", "PARENT"]),
+  getStudentFeeLedger
 );
 
 module.exports = router;

@@ -6,26 +6,37 @@ const parentStudentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Institute",
       required: true,
+      index: true
     },
 
     parentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true
     },
 
     studentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-    },
+      index: true
+    }
   },
   { timestamps: true }
 );
 
-// 🚫 Prevent duplicate linking
+/**
+ * 🚫 Prevent duplicate linking
+ * Same parent cannot be linked to same student
+ * within the same institute
+ */
 parentStudentSchema.index(
-  { parentId: 1, studentId: 1 },
+  {
+    instituteId: 1,
+    parentId: 1,
+    studentId: 1
+  },
   { unique: true }
 );
 

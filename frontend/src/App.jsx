@@ -10,6 +10,7 @@ import Attendance from "./pages/Attendance";
 import Reports from "./pages/Reports";
 import Fees from "./pages/Fees";
 import Timetable from "./pages/Timetable";
+import ParentDashboard from "./pages/ParentDashboard";
 
 export default function App() {
   return (
@@ -25,6 +26,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <DashboardRouter />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/parent/dashboard"
+            element={
+              <ProtectedRoute>
+                <ParentDashboard />
               </ProtectedRoute>
             }
           />

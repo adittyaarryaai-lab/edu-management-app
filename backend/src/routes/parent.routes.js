@@ -7,7 +7,9 @@ const parentController = require("../controllers/parent.controller");
 const authMiddleware = require("../middlewares/auth.middleware");
 const roleMiddleware = require("../middlewares/role.middleware");
 
-// ✅ Create Parent (Admin)
+/* ===============================
+   ADMIN: CREATE PARENT USER
+   =============================== */
 router.post(
   "/",
   authMiddleware,
@@ -15,7 +17,9 @@ router.post(
   parentController.createParent
 );
 
-// ✅ Link Parent to Student
+/* ===============================
+   ADMIN: LINK PARENT ↔ STUDENT
+   =============================== */
 router.post(
   "/link",
   authMiddleware,
@@ -23,17 +27,23 @@ router.post(
   async (req, res) => {
     try {
       const link = await ParentStudent.create({
-        ...req.body,
-        instituteId: req.user.instituteId,
+        parentId: req.body.parentId,
+        studentId: req.body.studentId,
+        instituteId: req.user.instituteId
       });
+
       res.status(201).json(link);
     } catch (err) {
-      res.status(400).json({ message: "Already linked or invalid data" });
+      res.status(400).json({
+        message: "Already linked or invalid data"
+      });
     }
   }
 );
 
-// ✅ Parent fetch children
+/* ===============================
+   PARENT: FETCH LINKED CHILDREN
+   =============================== */
 router.get(
   "/children",
   authMiddleware,
@@ -41,11 +51,21 @@ router.get(
   async (req, res) => {
     const children = await ParentStudent.find({
       parentId: req.user.userId,
-      instituteId: req.user.instituteId,
+      instituteId: req.user.instituteId
     }).populate("studentId");
 
     res.json(children);
   }
+);
+
+/* ===============================
+   PARENT: CHILD DASHBOARD (DAY 27)
+   =============================== */
+router.get(
+  "/dashboard",
+  authMiddleware,
+  roleMiddleware(["PARENT"]),
+  parentController.getChildDashboard
 );
 
 module.exports = router;

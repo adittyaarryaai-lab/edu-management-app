@@ -1,5 +1,6 @@
 const FeeStructure = require("../models/FeeStructure");
 const FeeLedger = require("../models/FeeLedger");
+const { createNotification } = require("./notificationController");
 
 /*
 |--------------------------------------------------------------------------
@@ -61,7 +62,7 @@ exports.assignFeeToStudent = async (req, res) => {
 |--------------------------------------------------------------------------
 | ADD PAYMENT (ACCOUNTANT)
 |--------------------------------------------------------------------------
-| Append-only accounting entry
+| Append-only accounting entry + Notification trigger
 */
 exports.addFeePayment = async (req, res) => {
   try {
@@ -76,6 +77,7 @@ exports.addFeePayment = async (req, res) => {
       return res.status(404).json({ message: "Fee ledger not found" });
     }
 
+    // 🔐 Append-only transaction
     ledger.transactions.push({
       amount,
       mode,
@@ -83,8 +85,16 @@ exports.addFeePayment = async (req, res) => {
     });
 
     ledger.paidAmount += amount;
-
     await ledger.save();
+
+    // 🔔 NOTIFICATION TO STUDENT
+    await createNotification({
+      instituteId: ledger.instituteId,
+      userId: ledger.studentId,
+      title: "Fee Payment Received",
+      message: `₹${amount} received via ${mode}`,
+      type: "fees",
+    });
 
     res.json({
       message: "Payment recorded successfully",

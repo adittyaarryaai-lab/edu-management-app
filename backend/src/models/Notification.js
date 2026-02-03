@@ -6,33 +6,41 @@ const notificationSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "Institute",
       required: true,
+      index: true
+    },
+
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true
     },
 
     title: {
       type: String,
-      required: true,
+      required: true
     },
 
     message: {
       type: String,
-      required: true,
+      required: true
     },
 
-    targetRole: {
+    type: {
       type: String,
-      enum: ["STUDENT", "PARENT", "TEACHER", "ALL"],
-      default: "ALL",
+      enum: ["attendance", "fees", "exam", "general"],
+      default: "general"
     },
 
-    studentId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+    read: {
+      type: Boolean,
+      default: false
     },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
+      ref: "User"
+    }
   },
   { timestamps: true }
 );

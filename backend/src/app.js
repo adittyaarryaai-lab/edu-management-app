@@ -35,5 +35,6 @@ app.use("/api/notifications", require("./routes/notification.routes"));
 app.use("/api/reports", require("./routes/reports.routes"));
 app.use("/api/settings", require("./routes/settings.routes"));
 app.use("/api/analytics", require("./routes/analyticsRoutes"));
+app.use("/api/materials", require("./routes/studyMaterialRoutes"));
 
 module.exports = app;

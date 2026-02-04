@@ -1,26 +1,35 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import ProtectedRoute from "./utils/ProtectedRoute";
-import DashboardRouter from "./pages/dashboard/DashboardRouter";
 import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./utils/ProtectedRoute";
 
+/* Auth */
+import Login from "./pages/Login";
+
+/* Dashboards */
+import DashboardRouter from "./pages/dashboard/DashboardRouter";
+import ParentDashboard from "./pages/ParentDashboard";
+
+/* Core Modules */
 import Students from "./pages/Students";
 import Teachers from "./pages/Teachers";
 import Attendance from "./pages/Attendance";
 import Reports from "./pages/Reports";
 import Fees from "./pages/Fees";
 import Timetable from "./pages/Timetable";
-import ParentDashboard from "./pages/ParentDashboard";
+
+/* Day 28 — LMS */
+import UploadMaterial from "./pages/UploadMaterial";
+import StudyMaterials from "./pages/StudyMaterials";
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Public Route */}
+          {/* ---------------- PUBLIC ---------------- */}
           <Route path="/login" element={<Login />} />
 
-          {/* Dashboard */}
+          {/* ---------------- DASHBOARDS ---------------- */}
           <Route
             path="/dashboard"
             element={
@@ -29,6 +38,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
             path="/parent/dashboard"
             element={
@@ -38,7 +48,7 @@ export default function App() {
             }
           />
 
-          {/* Sidebar Pages (ALL PROTECTED) */}
+          {/* ---------------- ADMIN / TEACHER / STUDENT ---------------- */}
           <Route
             path="/students"
             element={
@@ -89,6 +99,25 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Fees />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ---------------- DAY 28 : LMS ---------------- */}
+          <Route
+            path="/upload-material"
+            element={
+              <ProtectedRoute>
+                <UploadMaterial />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/study-materials"
+            element={
+              <ProtectedRoute>
+                <StudyMaterials />
               </ProtectedRoute>
             }
           />

@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const authMiddleware = require("../middlewares/auth.middleware");
-const roleMiddleware = require("../middlewares/role.middleware");
+const permission = require("../middlewares/permission");
 
 const {
   createFeeStructure,
@@ -13,40 +13,43 @@ const {
 
 /*
 |--------------------------------------------------------------------------
-| FEE STRUCTURE (ADMIN)
+| FEE STRUCTURE
 |--------------------------------------------------------------------------
+| Permission: fees:manage
 | Create class-wise fee structure
 */
 router.post(
   "/structure",
   authMiddleware,
-  roleMiddleware(["SUPER_ADMIN", "INSTITUTE_ADMIN"]),
+  permission("fees:manage"),
   createFeeStructure
 );
 
 /*
 |--------------------------------------------------------------------------
-| ASSIGN FEE TO STUDENT (ADMIN)
+| ASSIGN FEE TO STUDENT
 |--------------------------------------------------------------------------
+| Permission: fees:manage
 | Creates student fee ledger
 */
 router.post(
   "/assign",
   authMiddleware,
-  roleMiddleware(["SUPER_ADMIN", "INSTITUTE_ADMIN"]),
+  permission("fees:manage"),
   assignFeeToStudent
 );
 
 /*
 |--------------------------------------------------------------------------
-| ADD PAYMENT (ACCOUNTANT)
+| ADD PAYMENT
 |--------------------------------------------------------------------------
+| Permission: fees:manage
 | Append-only transaction
 */
 router.post(
   "/pay",
   authMiddleware,
-  roleMiddleware(["ACCOUNTANT"]),
+  permission("fees:manage"),
   addFeePayment
 );
 
@@ -54,12 +57,13 @@ router.post(
 |--------------------------------------------------------------------------
 | STUDENT / PARENT VIEW
 |--------------------------------------------------------------------------
+| Permission: fees:read
 | View fee ledger + transactions
 */
 router.get(
   "/student/:studentId",
   authMiddleware,
-  roleMiddleware(["STUDENT", "PARENT"]),
+  permission("fees:read"),
   getStudentFeeLedger
 );
 

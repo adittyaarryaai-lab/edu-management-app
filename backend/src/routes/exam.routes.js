@@ -3,20 +3,20 @@ const Exam = require("../models/Exam.model");
 const InstituteSettings = require("../models/InstituteSettings");
 
 const authMiddleware = require("../middlewares/auth.middleware");
-const roleMiddleware = require("../middlewares/role.middleware");
-const examController = require("../controllers/exam.controller");
+const permission = require("../middlewares/permission");
 
 const router = express.Router();
 
-/**
- * =========================
- * CREATE EXAM (ADMIN)
- * =========================
- */
+/*
+|--------------------------------------------------------------------------
+| CREATE EXAM
+|--------------------------------------------------------------------------
+| Permission: exams:manage
+*/
 router.post(
   "/",
   authMiddleware,
-  roleMiddleware(["INSTITUTE_ADMIN"]),
+  permission("exams:manage"),
   async (req, res) => {
     try {
       // 🔒 FEATURE TOGGLE CHECK
@@ -33,7 +33,7 @@ router.post(
       const exam = await Exam.create({
         ...req.body,
         instituteId: req.user.instituteId,
-        academicYear: req.academicYear, // auto-attached
+        academicYear: req.academicYear,
         createdBy: req.user._id,
       });
 
@@ -44,15 +44,16 @@ router.post(
   }
 );
 
-/**
- * =========================
- * GET EXAMS (ADMIN / TEACHER)
- * =========================
- */
+/*
+|--------------------------------------------------------------------------
+| GET EXAMS LIST
+|--------------------------------------------------------------------------
+| Permission: exams:read
+*/
 router.get(
   "/",
   authMiddleware,
-  roleMiddleware(["INSTITUTE_ADMIN", "TEACHER"]),
+  permission("exams:read"),
   async (req, res) => {
     const exams = await Exam.find({
       instituteId: req.user.instituteId,
@@ -63,14 +64,16 @@ router.get(
   }
 );
 
-/**
- * =========================
- * GET SINGLE EXAM
- * =========================
- */
+/*
+|--------------------------------------------------------------------------
+| GET SINGLE EXAM
+|--------------------------------------------------------------------------
+| Permission: exams:read
+*/
 router.get(
   "/:id",
   authMiddleware,
+  permission("exams:read"),
   async (req, res) => {
     const exam = await Exam.findOne({
       _id: req.params.id,
@@ -85,15 +88,16 @@ router.get(
   }
 );
 
-/**
- * =========================
- * DELETE EXAM (ADMIN)
- * =========================
- */
+/*
+|--------------------------------------------------------------------------
+| DELETE EXAM
+|--------------------------------------------------------------------------
+| Permission: exams:manage
+*/
 router.delete(
   "/:id",
   authMiddleware,
-  roleMiddleware(["INSTITUTE_ADMIN"]),
+  permission("exams:manage"),
   async (req, res) => {
     await Exam.deleteOne({
       _id: req.params.id,

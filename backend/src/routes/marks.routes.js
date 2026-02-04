@@ -2,30 +2,36 @@ const express = require("express");
 const router = express.Router();
 
 const authMiddleware = require("../middlewares/auth.middleware");
-const roleMiddleware = require("../middlewares/role.middleware");
+const permission = require("../middlewares/permission");
 
 const {
   saveMarks,
   getStudentReport,
 } = require("../controllers/marks.controller");
 
-/* ================================
-   TEACHER: ADD / UPDATE MARKS
-   ================================ */
+/*
+|--------------------------------------------------------------------------
+| TEACHER: ADD / UPDATE MARKS
+|--------------------------------------------------------------------------
+| Permission: marks:write
+*/
 router.post(
   "/",
   authMiddleware,
-  roleMiddleware(["TEACHER"]),
+  permission("marks:write"),
   saveMarks
 );
 
-/* ================================
-   STUDENT / PARENT: REPORT CARD
-   ================================ */
+/*
+|--------------------------------------------------------------------------
+| STUDENT / PARENT: REPORT CARD
+|--------------------------------------------------------------------------
+| Permission: marks:read
+*/
 router.get(
   "/report",
   authMiddleware,
-  roleMiddleware(["STUDENT", "PARENT"]),
+  permission("marks:read"),
   getStudentReport
 );
 

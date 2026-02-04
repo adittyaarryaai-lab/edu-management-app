@@ -1,20 +1,22 @@
 const express = require("express");
 const Attendance = require("../models/Attendance.model");
 const Timetable = require("../models/Timetable.model");
+
 const authMiddleware = require("../middlewares/auth.middleware");
-const roleMiddleware = require("../middlewares/role.middleware");
+const permission = require("../middlewares/permission");
 
 const router = express.Router();
 
 /*
 |--------------------------------------------------------------------------
-| 🟢 MARK ATTENDANCE (Teacher only, Timetable locked, UPSERT SAFE)
+| 🟢 MARK ATTENDANCE (Permission: attendance:write)
+| Teacher only (via permission), Timetable locked, UPSERT SAFE
 |--------------------------------------------------------------------------
 */
 router.post(
   "/mark",
   authMiddleware,
-  roleMiddleware(["TEACHER"]),
+  permission("attendance:write"),
   async (req, res) => {
     const { classId, subject, periodNumber, date, records } = req.body;
 
@@ -38,8 +40,6 @@ router.post(
       |--------------------------------------------------------------------------
       | ✅ BULK UPSERT LOGIC (No duplicate crash)
       |--------------------------------------------------------------------------
-      | One student + date + period = one record
-      | Same day re-mark = overwrite
       */
       const operations = records.map((r) => ({
         updateOne: {
@@ -81,12 +81,13 @@ router.post(
 
 /*
 |--------------------------------------------------------------------------
-| 🔵 STUDENT / PARENT VIEW (Read only)
+| 🔵 STUDENT / PARENT VIEW (Permission: attendance:read)
 |--------------------------------------------------------------------------
 */
 router.get(
   "/student/:studentId",
   authMiddleware,
+  permission("attendance:read"),
   async (req, res) => {
     try {
       const attendance = await Attendance.find({
